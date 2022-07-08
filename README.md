@@ -1,5 +1,5 @@
 # Pretius Smart Checkbox Column
-![](https://img.shields.io/badge/Plug--In%20Type-Dynamic%20Action-orange) ![](https://img.shields.io/badge/APEX-18.*-brightgreen) ![](https://img.shields.io/badge/APEX-19.*-brightgreen) ![](https://img.shields.io/badge/APEX-20.*-brightgreen)
+![](https://img.shields.io/badge/Plug--In%20Type-Dynamic%20Action-orange) ![](https://img.shields.io/badge/APEX-18.*-brightgreen) ![](https://img.shields.io/badge/APEX-19.*-brightgreen) ![](https://img.shields.io/badge/APEX-20.*-brightgreen) ![](https://img.shields.io/badge/APEX-21.*-brightgreen)
 
 Oracle APEX Plugin that can be used for creating checkbox column in Classic and Interactive Report. The Plugin can be easly cofigured to provide different selection behavior and ways of storing selected values.
 
