@@ -1,0 +1,50 @@
+{
+  "name" : "Pretius Smart Checkbox Column",
+  "version" : "1.0.0",
+  "description" : "Oracle APEX Plugin that can be used for creating checkbox column in Classic and Interactive Report. The Plugin can be easly cofigured to provide different selection behavior and ways of storing selected values.",
+  "keywords" : ["checkbox", "report", "apex", "selection", "select", "column", "IR", "Interactive Report", "Classic Report", "collection"],
+  "homepage" : "https://github.com/pretius/pretius-smart-checkbox-column",
+  "bugs" : {
+    "url" : "https://github.com/pretius/pretius-smart-checkbox-column/issues",
+    "email" : "apex-plugins@pretius.com"
+  },
+  "license" : "MIT",
+  "commercial" : "No",
+  "commercially_supported":"Yes",
+  "author" : {
+    "name" : "Pretius",
+    "email" : "apex-plugins@pretius.com",
+    "url" : "http://www.pretius.com",
+    "twitter": "PretiusSoftware"
+  },
+  "repository" : {
+    "type" : "git",
+    "url" : "https://github.com/pretius/pretius-smart-checkbox-column.git"
+  },
+  "oracle": { 
+    "versions": [
+      "11.2.0.1",
+      "12.1.0.1",
+      "12.2.0.1",
+      "18.0.0.0"
+    ],
+    "apex": { 
+      "versions": [
+        "18.1.0",
+        "18.2.0",
+        "19.1.0",
+        "19.2.0",
+        "20.1.0",
+        "21.1.0",
+        "21.2.0",
+        "22.1.0"
+      ],
+      "plugin" : {
+        "internalName" : "PRETIUS_SMART_CHECKBOX_COLUMN",
+        "type" : "dynamic action",
+        "demo" : "https://apex.oracle.com/pls/apex/r/apex_competition_2019/apex_mailbox/apex-mailbox",
+        "previewImage": "https://raw.githubusercontent.com/pretius/pretius-smart-checkbox-column/master/images/preview.gif"
+      }
+    }
+  }
+}
