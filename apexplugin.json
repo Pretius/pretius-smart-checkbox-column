@@ -42,7 +42,7 @@
       "plugin" : {
         "internalName" : "PRETIUS_SMART_CHECKBOX_COLUMN",
         "type" : "dynamic action",
-        "demo" : "https://apex.oracle.com/pls/apex/r/apex_competition_2019/apex_mailbox/apex-mailbox",
+        "demo" : "https://apex.oracle.com/pls/apex/r/apex_competition_2019/a74572/apex-mailbox",
         "previewImage": "https://raw.githubusercontent.com/pretius/pretius-smart-checkbox-column/master/images/preview.gif"
       }
     }
