@@ -9,6 +9,7 @@ Oracle APEX Plugin that can be used for creating checkbox column in Classic and 
 * single and multi selection modes
 * higlight selected rows
 * select rows with click outside of the checkbox
+* customizable checkbox styles (with APEX Icons)
 
 ![Preview gif](images/preview.gif)
 
@@ -47,14 +48,15 @@ We offer:
 * priority update to next APEX releases and features listed in the roadmap.
 
 ## Roadmap
-* [ ] Support for other APEX report types
-* [ ] Automatically enhanced styling for checkbox column in Interactive Report
-* [ ] Custom checkbox visualizations
+* [x] Support for mutliple instances of the plugin on the same report
+* [x] Custom checkbox visualizations
+* [x] Automatically adjust checkbox column width in Interactive Report
 * [ ] No checkbox mode - row selection
 * [ ] No header checkbox mode - plugin will not render header checkbox
 * [ ] Google like - select all flag (all report pages)
 * [ ] Additional checkbox attributes for custom selection callbacks
 * [ ] Custom selection callbacks
+* [ ] Support for other APEX report types
 
 ## Known issues
 
@@ -62,7 +64,11 @@ We offer:
 
 ### 1.0.0 
 Initial Release
-
+### 1.1.0 
+New features introduced:
+* Support for mutliple instances of the plugin on the same report
+* Custom checkbox visualizations
+* Automatically adjust checkbox column width in Interactive Report
 
 ## About Author
 Author | Github | Twitter | E-mail
