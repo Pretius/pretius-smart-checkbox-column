@@ -538,6 +538,13 @@ wwv_flow_api.create_plugin_attribute(
 ,p_depending_on_has_to_exist=>true
 ,p_depending_on_condition_type=>'IN_LIST'
 ,p_depending_on_expression=>'CUSTOM_CHECKBOX_STYLE'
+,p_examples=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'<p><ul>',
+'  <li> fa-square-o </li>',
+'  <li> fa-circle-o </li>',
+'  <li> fa-heart-o </li>',
+'</ul></p>'))
+,p_help_text=>'Define APEX icon class that will be used instead of standard HTML checkbox input element. In this field provide icon class to represent not selected / empty state of the checkbox.'
 );
 wwv_flow_api.create_plugin_attribute(
  p_id=>wwv_flow_api.id(62281064846486234)
@@ -554,6 +561,13 @@ wwv_flow_api.create_plugin_attribute(
 ,p_depending_on_has_to_exist=>true
 ,p_depending_on_condition_type=>'IN_LIST'
 ,p_depending_on_expression=>'CUSTOM_CHECKBOX_STYLE'
+,p_examples=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'<p><ul>',
+'  <li> fa-square </li>',
+'  <li> fa-circle </li>',
+'  <li> fa-heart </li>',
+'</ul></p>'))
+,p_help_text=>'Define APEX icon class that will be used instead of standard HTML checkbox input element. In this field provide icon class to represent selected state of the checkbox.'
 );
 wwv_flow_api.create_plugin_event(
  p_id=>wwv_flow_api.id(68851482946266301)
