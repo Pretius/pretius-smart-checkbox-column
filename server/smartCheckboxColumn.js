@@ -16,6 +16,9 @@
 *			* Support for multiple plugin instances on the same report
 *			* Custom checkboxes visualizations
 *			* Auto limiting checkbox column width for Interactive Report
+*	1.1.1 - Patch for
+*			* Issue #1
+*			* Broken select all checkbox after page refresh with all checkboxes selected
 */
 
 (function (debug, $){
@@ -135,7 +138,7 @@
 			debug.message(self.C_LOG_LVL_6, self.C_LOG_PREFIX, 'Finding checkbox column...');
 
 			
-			self.columnHeader$ = self.region$.find('th#'+self.columnProperties.columnId);
+			self.columnHeader$ = self.region$.find('th[id="'+self.columnProperties.columnId+'"]');
 			self.columnCells$  = self.region$.find('td[headers="'+self.columnProperties.columnId+'"]');
 		},
 
@@ -159,7 +162,7 @@
 
 				// rendering header checkbox - custom style
 				let
-					headerCheckbox$    = $('<span class="pscc fa '+self.selectionProperties.emptyCheckboxIcon+'"></span>');
+					checkbox$    = $('<span class="pscc fa '+self.selectionProperties.emptyCheckboxIcon+'"></span>');
 
 				self.columnHeader$.find('a').remove();
 				self.columnHeader$.find('span').remove();
@@ -167,12 +170,9 @@
 					return this.nodeType == Node.TEXT_NODE;
 				}).remove();    
 
-				self.columnHeader$.append(headerCheckbox$);
-				self.headerCheckbox$ = headerCheckbox$;
-				// for some reason APEX IR is not behaving great when there are any changes in table headers
-				// resulting in blank space added under the header. Resizing the window allow IR widget to recalculate
-				// space needed for headers and fix the issue, so let's make it simple and just simulate window resize.
-				apex.event.trigger('body', 'apexwindowresized'); 
+				self.columnHeader$.append(checkbox$.clone());
+				self.headerCheckbox$ = self.columnHeader$.find('span.pscc');
+
 			} else {
 				// rendering column checkboxes - standard HTML
 				self.columnCells$.each(function(){
@@ -187,9 +187,9 @@
 				self.cellCheckboxes$ = self.columnCells$.find('input[type="checkbox"]');
 
 				// rendering header checkbox - standard HTML
-				var
-					disabledAttribute  = !self.selectionProperties.allowMultipleSelection ? ' disabled ' : '',
-					headerCheckbox$    = $('<input type="checkbox"'+ disabledAttribute+'>');
+				let
+					disabledAttribute	= !self.selectionProperties.allowMultipleSelection ? ' disabled ' : '',
+					checkbox$    		= $('<input type="checkbox"'+ disabledAttribute+'>');
 
 				self.columnHeader$.find('a').remove();
 				self.columnHeader$.find('span').remove();
@@ -197,8 +197,8 @@
 					return this.nodeType == Node.TEXT_NODE;
 				}).remove();    
 
-				self.columnHeader$.append(headerCheckbox$);
-				self.headerCheckbox$ = headerCheckbox$;
+				self.columnHeader$.append(checkbox$.clone());
+				self.headerCheckbox$ = self.columnHeader$.find('input[type="checkbox"]');
 			}
 
 			// Limit column width for IR 
@@ -213,6 +213,11 @@
 				apex.event.trigger('body', 'apexwindowresized'); 
 			}
 			$('#'+self.columnProperties.columnId).css({'vertical-align': 'middle'}); 
+
+			// for some reason APEX IR is not behaving great when there are any changes in table headers
+			// resulting in blank space added under the header. Resizing the window allow IR widget to recalculate
+			// space needed for headers and fix the issue, so let's make it simple and just simulate window resize.
+			apex.event.trigger('body', 'apexwindowresized'); 
 			debug.message(self.C_LOG_LVL_6, self.C_LOG_PREFIX, 'cellCheckboxes$: ', self.cellCheckboxes$);
 		},
 
@@ -246,6 +251,7 @@
 				if (self.selectionProperties.selectOnClickAnywhere){
 					self.columnHeader$.on('click', $.proxy( self._selectAllHandler, self));
 				} else {
+					debug.message(self.C_LOG_LVL_DEBUG, self.C_LOG_PREFIX, 'header checkbox, adding listener: ', self.headerCheckbox$);
 					self.headerCheckbox$.on('click', $.proxy( self._selectAllHandler, self));
 				}
 			}

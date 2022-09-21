@@ -69,6 +69,10 @@ New features introduced:
 * Support for mutliple instances of the plugin on the same report
 * Custom checkbox visualizations
 * Automatically adjust checkbox column width in Interactive Report
+### 1.1.1 
+Patch:
+* Issue #1
+* Broken select all checkbox after page refresh with all checkboxes selected
 
 ## About Author
 Author | Github | Twitter | E-mail
