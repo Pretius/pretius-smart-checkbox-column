@@ -1,6 +1,6 @@
 /*
 * Plugin: Pretius Smart Checkbox Column
-* Version: 1.1.0
+* Version: 1.2.0
 *
 * Author: Adam Kierzkowski
 * Mail: akierzkowski@pretius.com
@@ -19,6 +19,8 @@
 *	1.1.1 - Patch for
 *			* Issue #1
 *			* Broken select all checkbox after page refresh with all checkboxes selected
+*	1.2.0 - New functionalities added
+*			* Multiple columns of the report can now be stored in APEX collection along with selected checkbox values
 */
 
 (function (debug, $){
@@ -77,13 +79,14 @@
 				"selectedCheckboxIcon"		: self.options.selectedCheckboxIcon
 			};
 			self.storageProperties = {
-				"storeSelectedInItem"		: self.options.selectionSettings != null && self.options.selectionSettings.indexOf('STORE_IN_ITEM') > -1,
-				"storeSelectedInCollection" : self.options.selectionSettings != null && self.options.selectionSettings.indexOf('STORE_IN_COLLECTION') > -1,        
-				"storageItemName"			: self.options.storageItemName,
-				"itemAutoSubmit"			: self.options.itemAutoSubmit === 'Y' ? true : false,
-				"storageCollectionName"		: self.options.storageCollectionName,
-				"valueSeparator"			: self.options.valueSeparator,
-				"limitSelection"			: self.options.limitSelection  
+				"storeSelectedInItem"		    : self.options.selectionSettings != null && self.options.selectionSettings.indexOf('STORE_IN_ITEM') > -1,
+				"storeSelectedInCollection"     : self.options.selectionSettings != null && self.options.selectionSettings.indexOf('STORE_IN_COLLECTION') > -1,        
+				"storageItemName"			    : self.options.storageItemName,
+				"itemAutoSubmit"			    : self.options.itemAutoSubmit === 'Y' ? true : false,
+				"storageCollectionName"		    : self.options.storageCollectionName,
+				"valueSeparator"			    : self.options.valueSeparator,
+				"limitSelection"			    : self.options.limitSelection,  
+				"additionalCollectionColumns"   : self.options.additionalCollectionColumns  
 			};
 
 			if (self._checkIfReportTypeSupported() == false){
@@ -147,15 +150,23 @@
 			var self = this;
 			debug.message(self.C_LOG_LVL_6, self.C_LOG_PREFIX, 'Rendering checkboxes...');
 			
-			if (self.selectionProperties.customCheckboxStyle){
+			if (self.selectionProperties.customCheckboxStyle) {
 				// rendering column checkboxes - custom style
 				self.columnCells$.each(function(){
 					let 
 						cell$           = $(this),
 						cellValue       = cell$.text(),
-						valueAttribute  = ' value="'+cellValue+'" ',
-						checkbox$ 		= $('<span class="pscc fa '+self.selectionProperties.emptyCheckboxIcon+'" '+ valueAttribute +'></span>');
+						valueAttribute  = ' value="'+cellValue+'" ';
+						
+					if(typeof self.storageProperties.additionalCollectionColumns === 'string'){
+						const columnsID = self.storageProperties.additionalCollectionColumns.split(':');
+						Object.values(columnsID).forEach( ColumnID => {
+							let ColumnValue = cell$.parent().find("td[headers='"+ColumnID+"']").text();
+							valueAttribute += ' ' + ColumnID + '="'+ColumnValue+'" ';
+						});
+					}
 
+					let checkbox$ = $('<span class="pscc fa '+self.selectionProperties.emptyCheckboxIcon+'" '+ valueAttribute +'></span>');
 					cell$.html(checkbox$);
 				});
 				self.cellCheckboxes$ = self.columnCells$.find('span.pscc');
@@ -179,9 +190,17 @@
 					let 
 						cell$           = $(this),
 						cellValue       = cell$.text(),
-						valueAttribute  = ' value="'+cellValue+'" ',
-						checkbox$ 		= $('<input type="checkbox"'+ valueAttribute +'>');
+						valueAttribute  = ' value="'+cellValue+'" ';
+						
+					if(typeof self.storageProperties.additionalCollectionColumns === 'string'){
+						const columnsID = self.storageProperties.additionalCollectionColumns.split(':');
+						Object.values(columnsID).forEach( ColumnID => {
+							let ColumnValue = cell$.parent().find("td[headers='"+ColumnID+"']").text();
+							valueAttribute += ' ' + ColumnID + '="'+ColumnValue+'" ';
+						});
+					}
 
+					let checkbox$ = $('<input type="checkbox"'+ valueAttribute +'>');
 					cell$.html(checkbox$);
 				});
 				self.cellCheckboxes$ = self.columnCells$.find('input[type="checkbox"]');
@@ -260,15 +279,32 @@
 		_singleSelectionHandler: function(pCheckbox$, pEvent){
 			var 
 				self  = this,
-				value = pCheckbox$.attr('value');
+				value = pCheckbox$.attr('value'),
+				extraValues = "";
 			debug.message(self.C_LOG_LVL_DEBUG, self.C_LOG_PREFIX, 'Single selection handler triggered by event: ', pEvent);
 			
+			pCheckbox$.each(function() {
+				$.each(this.attributes, function() {
+					// this.attributes is not a plain object, but an array
+					// of attribute nodes, which contain both the name and value
+					if(this.specified) {
+
+						if(typeof self.storageProperties.additionalCollectionColumns === 'string'){
+							const columnsID = self.storageProperties.additionalCollectionColumns.toLowerCase().split(':');
+							if ( $.inArray(this.name.toLowerCase(), columnsID) !== -1 ) {
+								extraValues += this.value + ':'
+							}
+						}
+					}
+				});
+			});
 
 			if (self.selectedValues.includes(value)) {
 				self._clearSelectedValues();
 			} else {
 				self._clearSelectedValues();
-				self._addToSelectedValues(value);
+				debug.message(self.C_LOG_LVL_DEBUG, self.C_LOG_PREFIX, 'extraValues check before push to add: ', extraValues);
+				self._addToSelectedValues(value, extraValues);
 			}
 
 			self._applySelection();
@@ -278,13 +314,30 @@
 		_multipleSelectionHandler: function(pCheckbox$, pEvent){
 			var 
 				self  = this,
-				value = pCheckbox$.attr('value');
+				value = pCheckbox$.attr('value'),
+				extraValues = "";
 			debug.message(self.C_LOG_LVL_DEBUG, self.C_LOG_PREFIX, 'Multiple selection handler triggered by event: ', pEvent);
+
+			pCheckbox$.each(function() {
+				$.each(this.attributes, function() {
+					// this.attributes is not a plain object, but an array
+					// of attribute nodes, which contain both the name and value
+					if(this.specified) {
+						if(typeof self.storageProperties.additionalCollectionColumns === 'string'){
+							const columnsID = self.storageProperties.additionalCollectionColumns.toLowerCase().split(':');
+							if ( $.inArray(this.name.toLowerCase(), columnsID) !== -1 ) {
+								extraValues += this.value + ':'
+							}
+						}
+					}
+				});
+			});
 
 			if (self.selectedValues.includes(value)) {
 				self._removeFromSelectedValues(value);
 			} else {
-				self._addToSelectedValues(value);
+				debug.message(self.C_LOG_LVL_DEBUG, self.C_LOG_PREFIX, 'extraValues check before push to add: ', extraValues);
+				self._addToSelectedValues(value, extraValues);
 			}      
 			self._applySelection();
 			self._storeValues(); 
@@ -333,8 +386,25 @@
 					self.cellCheckboxes$.each(function(){
 						let 
 							checkbox$ = $(this),
-							value    = checkbox$.attr('value');
-						self._addToSelectedValues(value);
+							value    = checkbox$.attr('value'),
+							extraValues;
+
+						checkbox$.each(function() {
+							$.each(this.attributes, function() {
+								// this.attributes is not a plain object, but an array
+								// of attribute nodes, which contain both the name and value
+								if(this.specified) {
+									if(typeof self.storageProperties.additionalCollectionColumns === 'string'){
+										const columnsID = self.storageProperties.additionalCollectionColumns.toLowerCase().split(':');
+										if ( $.inArray(this.name.toLowerCase(), columnsID) !== -1 ) {
+											extraValues += this.value + ':'
+										}
+									}					  
+								}
+							});
+						});
+
+						self._addToSelectedValues(value, extraValues);
 					});
 				} else {
 					// clear all visible
@@ -407,30 +477,35 @@
 
 		},  
 	 
-		_addToSelectedValues: function(pValue){
+		_addToSelectedValues: function(pValue, pExtraValues){
 			var self = this;
 			debug.message(self.C_LOG_LVL_DEBUG, self.C_LOG_PREFIX, 'Adding value to currently selected rows: ', pValue);
+			debug.message(self.C_LOG_LVL_DEBUG, self.C_LOG_PREFIX, 'Adding extraValue to currently selected rows: ', pExtraValues);
 			
 			if (!self.selectedValues.includes(pValue)){
 				self.selectedValues.push(pValue);
-			}      
+			}
+			self.extraValues.push(pExtraValues);
 		},
 		_removeFromSelectedValues: function(pValue){
 			var self = this;
 			debug.message(self.C_LOG_LVL_DEBUG, self.C_LOG_PREFIX, 'Removing value from currently selected rows: ', pValue);
 
 			self.selectedValues.splice(self.selectedValues.indexOf(pValue), 1);
+			self.extraValues.splice(self.extraValues.indexOf(pValue), 1);
 		},        
 		_clearSelectedValues: function(){
 			var self = this;
 			debug.message(self.C_LOG_LVL_DEBUG, self.C_LOG_PREFIX, 'Clearing selected values...');
 
-			self.selectedValues = [];           
+			self.selectedValues = [];
+			self.extraValues = [];
 		},    
 
 		_getStoredValues: function(){
 			var self = this;
 			self.selectedValues =  []; // initialize empty array
+			self.extraValues =  []; // initialize empty array
 			
 			// if selection is stored in collection then try to read it
 			if (self.storageProperties.storeSelectedInCollection){
@@ -464,6 +539,7 @@
 			debug.message(self.C_LOG_LVL_DEBUG, self.C_LOG_PREFIX, 'Restoring selected values from APEX collection...', 'Ajax success', pData, pTextStatus, pJqXHR);
 
 			self.selectedValues = pData.selectedValues.map(obj => obj.checkbox_value);
+			self.extraValues = pData.selectedValues.map(obj => obj.extra_values);
 			self._applySelection();
 		},
 		_getStoredValuesAjaxerror: function(pJqXHR, pTextStatus, pErrorThrown){
@@ -520,7 +596,8 @@
 						"x01": self.storageProperties.storeSelectedInCollection ? "SET" : "SUBMIT",
 						"x02": self.storageProperties.storeSelectedInCollection,
 						"x03": self.storageProperties.storageCollectionName,
-						"f01": self.selectedValues
+						"f01": self.selectedValues,
+						"f02": self.extraValues
 					},
 					ajaxOptions = {
 						"success"    : $.proxy(self._storeValuesAjaxsuccess,    self),

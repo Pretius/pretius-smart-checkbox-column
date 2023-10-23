@@ -54,7 +54,7 @@ We offer:
 * [ ] No checkbox mode - row selection
 * [ ] No header checkbox mode - plugin will not render header checkbox
 * [ ] Google like - select all flag (all report pages)
-* [ ] Additional checkbox attributes for custom selection callbacks
+* [x] Additional checkbox attributes (values) stored in APEX collection
 * [ ] Custom selection callbacks
 * [ ] Support for other APEX report types
 
@@ -73,6 +73,9 @@ New features introduced:
 Patch:
 * Issue #1
 * Broken select all checkbox after page refresh with all checkboxes selected
+### 1.2.0 
+New feature introduced:
+* Multiple columns of the report can now be stored in APEX collection along with selected checkbox values
 
 ## About Author
 Author | Github | Twitter | E-mail
