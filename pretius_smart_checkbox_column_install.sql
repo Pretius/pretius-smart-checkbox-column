@@ -250,6 +250,11 @@ wwv_flow_api.create_plugin(
 '			p_dynamic_action => p_dynamic_action',
 '		);',
 '	END IF;',
+'',
+'    for i in 1..v_extra_values.count loop',
+'        v_extra_values(i) := replace(v_extra_values(i), ''undefined'', null);',
+'        --apex_debug.message(''Pretius Smart Checkbox Column: ''|| v_extra_values(i));',
+'    end loop;',
 '    ',
 '	for extVal in (select COLUMN_VALUE, ROWNUM from table(v_extra_values)) loop --inifni',
 '		for val in (select replace(COLUMN_VALUE, ''undefined'', null) as COLUMN_VALUE, ROWNUM from table(apex_string.split(v_extra_values(extVal.ROWNUM), '':'')) ) -- 3',
@@ -262,8 +267,9 @@ wwv_flow_api.create_plugin(
 '			end;',
 '			tr_extraValues.extend;',
 '			tr_extraValues(val.ROWNUM) := apex_util.STRING_TO_TABLE(tr_varchars(val.ROWNUM), '':'');',
-'		end loop;',
+'		end loop;       ',
 '	end loop;',
+'',
 '',
 '	CASE upper(v_ajax_command)',
 '		WHEN ''GET'' THEN',
@@ -332,6 +338,7 @@ wwv_flow_api.create_plugin(
 '			--close v_ref_cur;',
 '',
 '		WHEN ''SET'' THEN',
+'     ',
 '			IF upper(v_save_to_coll) = ''TRUE'' THEN',
 '				APEX_COLLECTION.CREATE_OR_TRUNCATE_COLLECTION( v_collection_name );',
 '',
@@ -392,7 +399,7 @@ wwv_flow_api.create_plugin(
 '				);',
 '',
 '			END IF;',
-'',
+'            ',
 '			apex_json.open_object;',
 '				apex_json.write(''status'', ''Ok'');',
 '				apex_json.write(''message'', ''APEX Collection updated successfully.'');',
@@ -422,6 +429,8 @@ wwv_flow_api.create_plugin(
 '		-- cleaning up',
 '		apex_json.close_all;',
 '		close v_ref_cur;',
+'        ',
+'        apex_debug.error(''Pretius Smart Checkbox Column: ajax error - %s'', sqlerrm);',
 'END f_ajax;',
 ''))
 ,p_api_version=>2
@@ -435,7 +444,7 @@ wwv_flow_api.create_plugin(
 '<p> Configure the plugin to manage selection behavior and storage settings of selected values </b>'))
 ,p_version_identifier=>'1.2.0'
 ,p_about_url=>'https://github.com/Pretius/pretius-smart-checkbox-column'
-,p_files_version=>10
+,p_files_version=>14
 );
 wwv_flow_api.create_plugin_attribute(
  p_id=>wwv_flow_api.id(98211814830216593)
@@ -715,12 +724,16 @@ wwv_flow_api.create_plugin_attribute(
 'Columns can be not displayed by deselecting them from Actions menu, however those columns cannot be defined as "Hidden column".',
 'Following columns will be put into collection to next C*** collection columns starting with C002.'))
 );
+end;
+/
+begin
 wwv_flow_api.create_plugin_event(
  p_id=>wwv_flow_api.id(100811663993420766)
 ,p_plugin_id=>wwv_flow_api.id(98201821780201218)
 ,p_name=>'max_selection_length_exceeded'
 ,p_display_name=>'Maximum selection length exceeded'
 );
+null;
 end;
 /
 begin

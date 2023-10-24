@@ -59,6 +59,7 @@ We offer:
 * [ ] Support for other APEX report types
 
 ## Known issues
+* In case of database version lower than 19 selecting too many characters into collection produces an error. 
 
 ## Changelog
 

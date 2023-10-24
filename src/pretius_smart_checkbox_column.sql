@@ -217,6 +217,11 @@ BEGIN
 			p_dynamic_action => p_dynamic_action
 		);
 	END IF;
+
+    for i in 1..v_extra_values.count loop
+        v_extra_values(i) := replace(v_extra_values(i), 'undefined', null);
+        --apex_debug.message('Pretius Smart Checkbox Column: '|| v_extra_values(i));
+    end loop;
     
 	for extVal in (select COLUMN_VALUE, ROWNUM from table(v_extra_values)) loop --inifni
 		for val in (select replace(COLUMN_VALUE, 'undefined', null) as COLUMN_VALUE, ROWNUM from table(apex_string.split(v_extra_values(extVal.ROWNUM), ':')) ) -- 3
@@ -229,8 +234,9 @@ BEGIN
 			end;
 			tr_extraValues.extend;
 			tr_extraValues(val.ROWNUM) := apex_util.STRING_TO_TABLE(tr_varchars(val.ROWNUM), ':');
-		end loop;
+		end loop;       
 	end loop;
+
 
 	CASE upper(v_ajax_command)
 		WHEN 'GET' THEN
@@ -299,6 +305,7 @@ BEGIN
 			--close v_ref_cur;
 
 		WHEN 'SET' THEN
+     
 			IF upper(v_save_to_coll) = 'TRUE' THEN
 				APEX_COLLECTION.CREATE_OR_TRUNCATE_COLLECTION( v_collection_name );
 
@@ -359,7 +366,7 @@ BEGIN
 				);
 
 			END IF;
-
+            
 			apex_json.open_object;
 				apex_json.write('status', 'Ok');
 				apex_json.write('message', 'APEX Collection updated successfully.');
@@ -389,4 +396,6 @@ EXCEPTION
 		-- cleaning up
 		apex_json.close_all;
 		close v_ref_cur;
+        
+        apex_debug.error('Pretius Smart Checkbox Column: ajax error - %s', sqlerrm);
 END f_ajax;
